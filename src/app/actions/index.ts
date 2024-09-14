@@ -4,7 +4,7 @@
 import { signIn, signOut } from "@/auth";
 
 export async function doLogout() {
-  await signOut({ redirectTo: "/" });
+  await signOut({ redirectTo: "/login" });
 }
 
 export async function doCredentialLogin(formData) {

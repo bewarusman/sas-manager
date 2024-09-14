@@ -20,9 +20,26 @@ model User {
   role        Role
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  passwordReset PasswordReset[]
 }
 
 enum Role {
   SUPER_ADMIN
   ACCOUNTANT
+}
+
+model PasswordReset {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model KeyStore {
+  id        Int     @id @default(autoincrement())
+  key       String  @unique @db.VarChar(512)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

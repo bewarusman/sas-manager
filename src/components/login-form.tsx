@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { doCredentialLogin } from "@/app/actions";
+import Link from "next/link";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -19,7 +20,7 @@ export default function LoginForm() {
         console.error(response.error);
         setError(response.error.message);
       } else {
-        router.push("/home");
+        router.push("/");
       }
     } catch (e) {
       console.error(e);
@@ -31,7 +32,7 @@ export default function LoginForm() {
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md p-8 space-y-8 bg-white shadow-lg rounded-lg">
         <h2 className="text-2xl font-bold text-center text-gray-900">
-          Welcome Back
+          SAS Manager
         </h2>
         <p className="text-sm text-center text-gray-600">
           Please sign in to your account
@@ -81,9 +82,9 @@ export default function LoginForm() {
             </div>
 
             <div className="text-sm">
-              <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
+              <Link href="/forgot-password" className="font-medium text-indigo-600 hover:text-indigo-500">
                 Forgot your password?
-              </a>
+              </Link>
             </div>
           </div>
 

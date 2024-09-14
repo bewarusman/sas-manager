@@ -1,12 +1,3 @@
-// import NextAuth from "next-auth";
-// export { auth as middleware } from "@/auth";
-
-// export default auth(async function middleware(req: NextRequest) {
-
-// })
-
-// middleware.ts
-
 import { NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 import type { NextRequest } from 'next/server';
@@ -24,16 +15,30 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  // middleware authenticaton
+  if (pathname.startsWith('/api')) {
+    return NextResponse.json(
+      { message: 'Unauthorized: Invalid or expired token' },
+      { status: 401 }
+    );
+  }
+
   // Redirect to login page if the user is not authenticated
-  if (!token && pathname !== '/') {
-    const loginUrl = new URL('/', req.url);
+  if (!token && pathname !== '/login') {
+    const loginUrl = new URL('/login', req.url);
     return NextResponse.redirect(loginUrl);
   }
 
   return NextResponse.next();
 }
 
-// Specify which routes should be protected
+// Add protected routes here
 export const config = {
-  matcher: ['/home/:path*', '/dashboard/:path*', '/settings/:path*'], // Add protected routes here
+  matcher: [
+    '/:path',
+    '/home/:path*',
+    '/dashboard/:path*',
+    '/settings/:path*',
+    '/api/users/:path*'
+  ],
 };
