@@ -34,33 +34,62 @@ async function getBearerToken() {
 
     return response.token;
   } catch (error) {
+    console.error(error);
     throw new Error(TOKEN_ERR_MSG + error?.message);
   }
 }
 
-export async function fetchUsers(page: string, count: string, search: string) {
+async function sasRequest(
+  endpoint: string,
+  params: Record<string, string>,
+  method: string = 'POST'
+) {
   const token = await getBearerToken();
   const myHeaders = new Headers();
-  myHeaders.append(
-    'Authorization',
-    'Bearer ' + token
-  );
+  myHeaders.append('Authorization', 'Bearer ' + token);
 
   const formdata = new FormData();
   formdata.append('payload', '');
 
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/api/index.php/api/index/user?page=${page}&count=${count}&search=${search}`,
-    {
-      method: 'POST',
-      headers: myHeaders,
-      body: formdata,
-      redirect: 'follow',
-    }
-  );
+  // Construct the URL with query parameters
+  const queryParams = new URLSearchParams(params).toString();
+  const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/api/index.php/${endpoint}?${queryParams}`;
+
+  const response = await fetch(url, {
+    method,
+    headers: myHeaders,
+    body: method === 'GET' ? null : formdata,
+    redirect: 'follow',
+  });
 
   if (!response.ok) {
-    throw new Error('Failed to fetch users');
+    throw new Error('Failed to fetch data');
   }
   return response.json();
+}
+
+
+export async function fetchUsers(page: string, count: string, search: string) {
+  const params = {
+    page,
+    count,
+    search,
+  };
+  return sasRequest('api/index/user', params);
+}
+
+export async function fetchSingleUser(userId: number) {
+  return sasRequest('api/user/${userId}', {}, 'GET');
+}
+
+export async function fetchProfiles() {
+  return sasRequest('api/list/profile/0', {}, 'GET');
+}
+
+export async function Activate(profileId: number, userId: number) {
+  const params = {
+    user_id: `${userId}`,
+    profile_id: `${profileId}`,
+  };
+  return sasRequest('api/index/user', params);
 }

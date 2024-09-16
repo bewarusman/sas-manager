@@ -2,6 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { Card } from './ui/card';
+import { UserStatus } from './user-status';
+import { Traffic } from './traffic';
+import Link from 'next/link';
+import { FcViewDetails } from "react-icons/fc";
 
 export default function UserList() {
   const [users, setUsers] = useState([]); // Store fetched users
@@ -28,6 +32,8 @@ export default function UserList() {
 
       // Handle the response data
       const { data: usersData, current_page, last_page } = data;
+
+      console.log('users-data', usersData);
 
       setUsers(usersData); // Set the users data
       setPage(current_page); // Update the current page
@@ -104,21 +110,37 @@ export default function UserList() {
           <table className="min-w-full bg-white">
             <thead>
               <tr>
+                <th className='px-4 py-2'>Status</th>
                 <th className="px-4 py-2">Username</th>
-                <th className="px-4 py-2">First Name</th>
-                <th className="px-4 py-2">Last Name</th>
                 <th className="px-4 py-2">Profile</th>
                 <th className="px-4 py-2">Expiration</th>
+                <th className="px-4 py-2">Traffic</th>
+                <th className="px-4 py-2"></th>
               </tr>
             </thead>
             <tbody>
               {users?.map((user: any) => (
                 <tr key={user.id}>
+                  <td className="border px-4 py-2">
+                    <UserStatus status={user.status} />
+                  </td>
                   <td className="border px-4 py-2">{user.username}</td>
-                  <td className="border px-4 py-2">{user.firstname}</td>
-                  <td className="border px-4 py-2">{user.lastname}</td>
                   <td className="border px-4 py-2">{user.profile_details?.name}</td>
                   <td className="border px-4 py-2">{user.expiration}</td>
+                  <td className="border px-4 py-2">
+                    <Traffic daily_traffic_details={user.daily_traffic_details} />
+                  </td>
+                  <td className="border px-4 py-2">
+                    <Link href={{
+                      pathname: "/users/details",
+                      query: { user: JSON.stringify(user) }
+                    }}>
+                      <div className="flex items-center space-x-2">
+                        <FcViewDetails className="text-2xl" />
+                        <span>Show</span>
+                      </div>
+                    </Link>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -157,3 +179,4 @@ export default function UserList() {
     // </div>
   )
 }
+

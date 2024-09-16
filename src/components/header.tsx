@@ -23,7 +23,7 @@ const Header: React.FC<HeaderProps> = ({ darkMode, toggleDarkMode, toggleSidebar
             </button>
             <Link href="/" className='flex ms-2 md:me-24'>
               <MdSpaceDashboard className='h-8 me-3 textxl text-violet-500' />
-              <span className='self-center textxl font-semibold sm:text-sm whitespace-nowrap dark:text-white '>DaxBod</span>
+              <span className='self-center textxl font-semibold sm:text-sm whitespace-nowrap dark:text-white '>SAS Manager</span>
             </Link>
           </div>
 
