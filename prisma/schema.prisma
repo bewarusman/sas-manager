@@ -43,3 +43,19 @@ model KeyStore {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Activation {
+  id        Int      @id @default(autoincrement())
+  email     String   @db.VarChar(512)
+  user      String
+  plan      String
+  createdAt DateTime @default(now())
+}
+
+
+model Setting {
+  id        Int    @id @default(autoincrement())
+  key       String @unique
+  value     String
+  updatedAt DateTime @updatedAt
+}

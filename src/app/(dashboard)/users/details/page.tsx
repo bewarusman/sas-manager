@@ -2,12 +2,14 @@
 
 import { Traffic } from "@/components/traffic";
 import { Card } from "@/components/ui/card";
+import { UserType } from "@/types/UserTypes";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { ActivateData } from "./activate-data";
 
-export default function UserDetail({ }) {
+export default function UserDetail() {
   const searchParams = useSearchParams();
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<UserType>();
 
   useEffect(() => {
     const userParam = searchParams.get('user');
@@ -57,7 +59,7 @@ export default function UserDetail({ }) {
             <ul className="space-y-2">
               <li><strong>Status:</strong> {user.status?.status ? 'Active' : 'Inactive'}</li>
               <li><strong>Traffic:</strong> {user.status?.traffic ? 'Yes' : 'No'}</li>
-              <li><strong>Expiration:</strong> {user.status?.expiration ? 'Valid' : 'Expired'}</li>
+              <li><strong>Expiration:</strong> {user.status?.expiration ? 'Expired' : 'Valid'}</li>
               <li><strong>Uptime:</strong> {user.status?.uptime ? 'Yes' : 'No'}</li>
             </ul>
           </section>
@@ -77,57 +79,14 @@ export default function UserDetail({ }) {
 
       <div className="flex-1">
         <Card title="Activate Internet">
-          <ActivateData userId={user.id} />
+          <ActivateData
+            userId={user.id}
+            user={user.username}
+            profileName={user.profile_details?.name}
+          />
         </Card>
       </div>
     </div>
 
-  );
-}
-
-function ActivateData({ userId }: { userId: number }) {
-  const [selectedOption, setSelectedOption] = useState('');
-  const [profiles, setProfiles] = useState([]);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // console.log(`Selected Option: ${selectedOption}`);
-  };
-
-  useEffect(() => {
-    fetch(`/api/profiles`)
-      .then(response => response.json())
-      .then(result => setProfiles(result?.data));
-  }, []);
-
-  return (
-    <form onSubmit={handleSubmit} className="p-6 dark:bg-gray-800 w-full max-w-md">
-
-      {/* Hidden Input */}
-      <input type="hidden" name="hiddenInput" value={userId} />
-
-      {/* Select Dropdown */}
-      <div className="mb-4">
-        <label htmlFor="options" className="block text-gray-700 dark:text-gray-300 mb-2">Choose an option:</label>
-        <select
-          id="options"
-          name="options"
-          className="block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:text-white"
-        >
-          <option value="" disabled>Select an option</option>
-          {profiles.map(profile => (
-            <option id={profile.id}>{profile.name}</option>
-          ))}
-        </select>
-      </div>
-
-      <button
-        type="submit"
-        className="w-full bg-blue-500 text-white font-semibold p-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300 dark:bg-blue-700 dark:hover:bg-blue-800"
-      >
-        Submit
-      </button>
-    </form>
   );
 }

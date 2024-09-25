@@ -4,6 +4,12 @@ import * as bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 
 export async function GET() {
+  await seedUser();
+  await seedSettings();
+  return Response.json({ message: 'Seed successful' });
+}
+
+const seedUser = async () => {
   const email: string = 'admin@admin.com';
   const adminUser = await prisma.user.findUnique({
     where: {
@@ -24,6 +30,31 @@ export async function GET() {
       role: 'SUPER_ADMIN',
     },
   });
+}
 
-  return Response.json({ message: 'Seed successful', user })
+const seedSettings = async () => {
+  const settings = [
+    {
+      key: 'NEXT_PUBLIC_API_BASE_URL',
+      value: 'http://demo4.sasradius.com',
+    },
+    {
+      key: 'NEXT_PUBLIC_API_USERNAME',
+      value: 'admin',
+    },
+    {
+      key: 'NEXT_PUBLIC_API_PASSWORD',
+      value: 'admin',
+    },
+  ];
+
+  for (const setting of settings) {
+    await prisma.setting.upsert({
+      where: { key: setting.key },
+      update: { value: setting.value },
+      create: setting,
+    });
+  }
+
+  console.log('Settings have been seeded.');
 }

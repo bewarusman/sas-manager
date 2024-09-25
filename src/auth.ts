@@ -1,6 +1,6 @@
 import NextAuth, { NextAuthConfig } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, User } from "@prisma/client";
 import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient()
@@ -31,7 +31,7 @@ export const authOptions: NextAuthConfig = {
         try {
           const email: string = credentials?.email as string;
           const user = await getUserByEmail(email);
-          console.log(user);
+          // console.log(user);
           if (user) {
             const hashed = credentials.password as string | '';
             const isMatch = await bcrypt.compare(hashed, user?.password);
@@ -43,7 +43,7 @@ export const authOptions: NextAuthConfig = {
           } else {
             throw new Error("User not found");
           }
-        } catch (error) {
+        } catch (error: any) {
           throw new Error(error);
         }
       },
@@ -55,7 +55,7 @@ export const authOptions: NextAuthConfig = {
       return token
     },
     async session({ session, token }) {
-      session.user = token.user
+      session.user = token.user as User
       return session
     }
   },

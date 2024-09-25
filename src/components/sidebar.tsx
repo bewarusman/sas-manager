@@ -1,6 +1,9 @@
 import Link from 'next/link';
-import { FaHome, FaChartBar } from 'react-icons/fa';
+import { FaHome, FaChartBar, FaUser, FaDatabase } from 'react-icons/fa';
 import Logout from './logout-button';
+import { Role, User } from '@prisma/client';
+import { useSession } from 'next-auth/react';
+import { FcSettings } from 'react-icons/fc';
 
 interface SidebarProps {
   isSidebarOpen: boolean;
@@ -8,6 +11,9 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, toggleSidebar }) => {
+  const { data: session } = useSession();
+  const user: User | undefined = session?.user as User | undefined;
+
   return (
     <>
       <aside
@@ -23,11 +29,33 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, toggleSidebar }) => {
             </li>
 
             <li>
-              <Link href="/" className='flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700' >
+              <Link href="/analytics" className='flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700' >
                 <FaChartBar className='mr-2' />
                 <span className='flex-1 me-3'>Analytics</span>
               </Link>
             </li>
+
+            {user?.role === Role.SUPER_ADMIN &&
+              <>
+                <li>
+                  <Link href="/audit-logs" className='flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700' >
+                    <FaDatabase className='mr-2' />
+                    <span className='flex-1 me-3'>Audit Logs</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/app-user" className='flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700' >
+                    <FaUser className='mr-2' />
+                    <span className='flex-1 me-3'>App Users</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/settings" className='flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700' >
+                    <FcSettings className='mr-2' />
+                    <span className='flex-1 me-3'>Settings</span>
+                  </Link>
+                </li>
+              </>}
 
             <li className='min-w-full'>
               <Logout />

@@ -12,6 +12,17 @@ export async function middleware(req: NextRequest) {
 
   // If token exists, the user is authenticated
   if (token) {
+    // authorization
+    console.log('path: ', pathname);
+
+    if (token?.user?.role === 'SUPER_ADMIN') {
+      return NextResponse.next();
+    }
+    if (adminUrls.find(u => pathname.startsWith(u))) {
+      const loginUrl = new URL('/not-authorized', req.url);
+      return NextResponse.redirect(loginUrl);
+    }
+
     return NextResponse.next();
   }
 
@@ -41,5 +52,10 @@ export const config = {
     '/settings/:path*',
     '/api/users/:path*',
     '/api/profiles/:path*',
+    '/app-user/:path*'
   ],
 };
+
+const adminUrls = [
+  '/app-user'
+]
