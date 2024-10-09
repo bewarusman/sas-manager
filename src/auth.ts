@@ -25,6 +25,7 @@ export const authOptions: NextAuthConfig = {
         email: {},
         password: {},
       },
+      // @ts-ignore
       async authorize(credentials) {
         if (credentials === null) return null;
 
@@ -55,6 +56,7 @@ export const authOptions: NextAuthConfig = {
       return token
     },
     async session({ session, token }) {
+      // @ts-ignore
       session.user = token.user as User
       return session
     }

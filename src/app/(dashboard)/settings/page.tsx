@@ -3,7 +3,7 @@
 import { doUpdateSettings } from '@/app/actions/update-settings';
 import { Card } from '@/components/ui/card'
 import { PrismaClient } from "@prisma/client";
-import { useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { useFormState } from 'react-dom';
 
 const prisma = new PrismaClient();
@@ -12,8 +12,8 @@ export default function Page() {
   const [state, formAction, loading] = useFormState(doUpdateSettings, { message: '' });
   const [formData, setFormData] = useState({ base_url: '', username: '', password: '' });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -21,9 +21,9 @@ export default function Page() {
     // setApiLoading(true);
     const response = await fetch('/api/settings')
     const result = await response.json();
-    const base_url = result?.find(s => s.key === "NEXT_PUBLIC_API_BASE_URL")?.value;
-    const username = result?.find(s => s.key === "NEXT_PUBLIC_API_USERNAME")?.value;
-    const password = result?.find(s => s.key === "NEXT_PUBLIC_API_PASSWORD")?.value;
+    const base_url = result?.find((s: any) => s.key === "NEXT_PUBLIC_API_BASE_URL")?.value;
+    const username = result?.find((s: any) => s.key === "NEXT_PUBLIC_API_USERNAME")?.value;
+    const password = result?.find((s: any) => s.key === "NEXT_PUBLIC_API_PASSWORD")?.value;
     setFormData({
       username: username ? username : '',
       password: password ? password : '',

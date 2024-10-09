@@ -7,7 +7,7 @@ export async function doLogout() {
   await signOut({ redirectTo: "/login" });
 }
 
-export async function doCredentialLogin(formData) {
+export async function doCredentialLogin(formData: FormData) {
   console.log("formData", formData);
 
   try {

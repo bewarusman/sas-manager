@@ -1,16 +1,11 @@
-import { NextApiRequest, NextApiResponse } from 'next';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method not allowed' });
-  }
-
-  const { email } = req.body;
+export async function POST(request: Request) {
+  const { email } = await request.json()
 
   try {
     // Check if user exists
@@ -19,7 +14,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return Response.json({ message: 'User not found!' }, {
+        status: 404
+      });
     }
 
     // Create a unique token
@@ -57,9 +54,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     await transporter.sendMail(mailOptions);
 
-    return res.status(200).json({ message: 'Password reset email sent' });
+    return Response.json({ message: 'Password reset email sent!' }, {
+      status: 200
+    });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: 'Server error' });
+    // console.error(error);
+    return Response.json({ message: 'Method not allowed' }, {
+      status: 500
+    });
   }
 }

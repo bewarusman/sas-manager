@@ -1,15 +1,11 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextApiRequest } from 'next';
 import { PrismaClient } from "@prisma/client";
 import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method not allowed' });
-  }
-
-  const { token, password } = req.body;
+export async function POST(request: Request) {
+  const { token, password } = await request.json();
 
   try {
     // Find the password reset token
@@ -19,7 +15,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     if (!resetToken || resetToken.expiresAt < new Date()) {
-      return res.status(400).json({ message: 'Invalid or expired token' });
+      return Response.json({ message: 'Invalid or expired token!' }, {
+        status: 400
+      });
     }
 
     // Hash the new password
@@ -36,9 +34,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       where: { id: resetToken.id },
     });
 
-    return res.status(200).json({ message: 'Password updated successfully' });
+    return Response.json({ message: 'Password updated successfully!' }, {
+      status: 405
+    });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: 'Server error' });
+    return Response.json({ message: 'Server error' }, {
+      status: 500
+    });
   }
 }
