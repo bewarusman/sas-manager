@@ -19,7 +19,7 @@ async function getBearerToken() {
     const result = await fetch(BASE_URL + "/admin/api/index.php/api/login", {
       method: "POST",
       body: formdata,
-      redirect: "follow"
+      redirect: "follow",
     });
 
     const response = await result.json();
@@ -41,7 +41,10 @@ async function getBearerToken() {
     return response.token;
   } catch (error) {
     if (error instanceof Error) {
-      console.error(error);
+      console.error({
+        bewar: 'bewar',
+        error
+      });
       throw new Error(TOKEN_ERR_MSG + error?.message);
     } else {
       throw new Error(TOKEN_ERR_MSG + 'unknown erro occured!')
@@ -54,6 +57,7 @@ async function sasRequest(
   params: Record<string, string>,
   method: string = 'POST'
 ) {
+
   const token = await getBearerToken();
   const headers = new Headers();
   headers.append('Authorization', 'Bearer ' + token);
@@ -63,7 +67,9 @@ async function sasRequest(
 
   // Construct the URL with query parameters
   const queryParams = new URLSearchParams(params).toString();
-  let url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/${endpoint}?${queryParams}`;
+  // let url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/${endpoint}?${queryParams}`;
+
+  let url = `${await getAppUrl()}/${endpoint}?${queryParams}`;
 
   const response = await fetch(url, {
     method,
@@ -112,13 +118,13 @@ export async function activate(
   email: string,
   plan: string,
   user: string) {
-  await prisma.activation.create({
-    data: {
-      email,
-      user: user,
-      plan: plan,
-    }
-  });
+  // await prisma.activation.create({
+  //   data: {
+  //     email,
+  //     user: user,
+  //     plan: plan,
+  //   }
+  // });
   const params = {
     transaction_id: uuid(),
     issue_invoice: "true",
