@@ -22,13 +22,15 @@ export const config = {
 };
 
 // Main middleware function
-export async function middleware(req: NextRequest) {
+export default async function middleware(req: NextRequest) {
   const token = await getToken({
     req,
     secret,
     salt: ''
   });
   const { pathname } = req.nextUrl;
+
+  // console.log('token');
 
   // Handle API authentication and response
   if (isApiRoute(pathname)) {
