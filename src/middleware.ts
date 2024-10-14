@@ -1,12 +1,22 @@
 import { NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
 import type { NextRequest } from 'next/server';
+import { authOptions } from './lib/auth-config';
+import NextAuth from "next-auth";
+// import { getToken } from 'next-auth/jwt';
+
+interface CustomRequest extends NextRequest {
+  auth?: {
+    user: {
+      email: string;
+    },
+    expires: Date;
+  };
+}
+
+const { auth } = NextAuth(authOptions);
 
 // Define the secret for NextAuth's JWT
 const secret = process.env.NEXTAUTH_SECRET || '';
-
-// Add admin routes here
-const adminUrls = ['/app-user'];
 
 // Add protected routes here
 export const config = {
@@ -22,37 +32,37 @@ export const config = {
 };
 
 // Main middleware function
-export default async function middleware(req: NextRequest) {
-  const token = await getToken({
-    req,
-    secret,
-    salt: ''
-  });
-  const { pathname } = req.nextUrl;
 
-  // console.log('token');
+export default auth(async function middleware(req: NextRequest) {
+  // export async function middleware(req: NextRequest) {
+
+  const request: CustomRequest = req;
+  const { pathname } = request.nextUrl;
+
+  // console.log(request.auth);
 
   // Handle API authentication and response
   if (isApiRoute(pathname)) {
-    return handleApiAuth(token);
+    return handleApiAuth(request.auth?.user);
   }
 
-  // Handle public route login redirection
-  if (!token && pathname !== '/login') {
+  // // Handle public route login redirection
+  if (!request.auth?.user && pathname !== '/login') {
     return redirectToLogin(req);
   }
 
-  // Handle user authorization
-  if (token) {
-    return handleAuthorization(req, token);
-  }
+  // // Handle user authorization
+  // if (request.auth?.user) {
+  //   return await handleAuthorization(req, request.auth?.user);
+  // }
 
   return NextResponse.next();
-}
+  // }
+});
 
 // Function to handle API authentication
-function handleApiAuth(token: any) {
-  if (!token) {
+function handleApiAuth(user: any) {
+  if (!user) {
     return NextResponse.json(
       { message: 'Unauthorized: Invalid or expired token' },
       { status: 401 }
@@ -73,11 +83,16 @@ function redirectToLogin(req: NextRequest) {
 }
 
 // Function to handle user authorization based on role and protected URLs
-function handleAuthorization(req: NextRequest, token: any) {
+async function handleAuthorization(req: NextRequest, authorizedUser: any) {
   const { pathname } = req.nextUrl;
 
   // If user is SUPER_ADMIN, allow access to all routes
-  if (token?.user?.role === 'SUPER_ADMIN') {
+  // const user = await prisma.user.findUnique({
+  //   where: {
+  //     email: authorizedUser.email
+  //   }
+  // });
+  if (authorizedUser?.role === 'SUPER_ADMIN') {
     return NextResponse.next();
   }
 
@@ -89,6 +104,9 @@ function handleAuthorization(req: NextRequest, token: any) {
 
   return NextResponse.next();
 }
+
+// Add admin routes here
+const adminUrls = ['/app-user'];
 
 // Function to check if a route is an admin URL
 function isAdminUrl(pathname: string) {

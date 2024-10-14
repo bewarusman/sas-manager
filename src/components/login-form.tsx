@@ -1,32 +1,18 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useFormState } from "react-dom";
+import { useRouter, redirect } from "next/navigation";
 import { doCredentialLogin } from "@/app/actions";
 import Link from "next/link";
 
+const initialState = {
+  message: '',
+  success: false,
+}
+
 export default function LoginForm() {
   const router = useRouter();
-  const [error, setError] = useState("");
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    try {
-      const formData = new FormData(event.currentTarget);
-
-      const response = await doCredentialLogin(formData);
-
-      if (!!response.error) {
-        console.error(response.error);
-        setError(response.error.message);
-      } else {
-        router.push("/");
-      }
-    } catch (e) {
-      console.error(e);
-      setError("Check your Credentials");
-    }
-  }
+  const [state, formAction, isPending] = useFormState(doCredentialLogin, initialState);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -38,8 +24,8 @@ export default function LoginForm() {
           Please sign in to your account
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="text-center text-xl text-red-500">{error}</div>
+        <form action={formAction} className="space-y-6">
+          <div className="text-center text-xl text-red-500">{state?.message}</div>
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
               Email address
@@ -88,13 +74,13 @@ export default function LoginForm() {
             </div>
           </div>
 
-
           <div>
             <button
               type="submit"
               className="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              disabled={isPending}
             >
-              Sign in
+              {isPending ? 'Signin in...' : 'Sign in'}
             </button>
           </div>
         </form>

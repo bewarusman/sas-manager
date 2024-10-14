@@ -16,6 +16,7 @@ const getUserByEmail = async (email: string) => {
 }
 
 export const authOptions: NextAuthConfig = {
+  secret: process.env.NEXTAUTH_SECRET || '',
   session: {
     strategy: 'jwt',
   },
@@ -32,7 +33,6 @@ export const authOptions: NextAuthConfig = {
         try {
           const email: string = credentials?.email as string;
           const user = await getUserByEmail(email);
-          // console.log(user);
           if (user) {
             const hashed = credentials.password as string | '';
             const isMatch = await bcrypt.compare(hashed, user?.password);
@@ -44,22 +44,23 @@ export const authOptions: NextAuthConfig = {
           } else {
             throw new Error("User not found");
           }
-        } catch (error: any) {
-          throw new Error(error);
+        } catch (error) {
+          throw error;
         }
       },
     }),
   ],
   callbacks: {
     async jwt({ token, user }) {
-      user && (token.user = user)
-      return token
+      user && (token.user = user);
+      console.log(user);
+      return token;
     },
     async session({ session, token }) {
       // @ts-ignore
       session.user = token.user as User
-      return session
-    }
+      return session;
+    },
   },
 };
 

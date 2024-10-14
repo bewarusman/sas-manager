@@ -7,17 +7,22 @@ export async function doLogout() {
   await signOut({ redirectTo: "/login" });
 }
 
-export async function doCredentialLogin(formData: FormData) {
-  console.log("formData", formData);
-
+export async function doCredentialLogin(prevState: any, formData: FormData) {
   try {
-    const response = await signIn("credentials", {
+    await signIn("credentials", {
       email: formData.get("email"),
       password: formData.get("password"),
       redirect: false,
     });
-    return response;
-  } catch (err) {
-    throw err;
+
+    return {
+      message: 'Login Success',
+      success: true,
+    };
+  } catch (err: any) {
+    return {
+      message: err.message,
+      success: false,
+    }
   }
 }
